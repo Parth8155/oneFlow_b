@@ -159,12 +159,18 @@ const createTask = async (req, res) => {
       });
     }
 
-    // Check permissions - only project manager or admin can create tasks
+    // Check permissions - admin, project manager, or project members can create tasks
     if (userRole !== 'admin' && project.project_manager_id !== userId) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'Only project managers can create tasks'
+      // Check if user is a member of the project
+      const isMember = await ProjectMember.findOne({
+        where: { project_id: project_id, user_id: userId }
       });
+      if (!isMember) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          message: 'You must be a project member to create tasks'
+        });
+      }
     }
 
     // Validate assigned user if provided

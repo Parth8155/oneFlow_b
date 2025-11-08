@@ -12,11 +12,11 @@ const getDashboardKPIs = async () => {
     where: { status: 'in_progress' }
   });
 
-  // Delayed Tasks: Tasks that are overdue (due_date < current date and status not 'done')
+  // Delayed Tasks: Tasks that are overdue (due_date < current date and status not 'completed')
   const delayedTasks = await Task.count({
     where: {
       due_date: { [Op.lt]: new Date() },
-      status: { [Op.in]: ['in_progress', 'blocked'] }
+      status: { [Op.in]: ['to_do', 'in_progress', 'approval'] }
     }
   });
 
@@ -57,7 +57,7 @@ const getProjectProgressData = async () => {
 
   const progressData = projects.map(project => {
     const totalTasks = project.tasks.length;
-    const completedTasks = project.tasks.filter(task => task.status === 'done').length;
+    const completedTasks = project.tasks.filter(task => task.status === 'completed').length;
     const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     return {
@@ -190,7 +190,7 @@ const getBillableHoursData = async () => {
  */
 const getTasksCompletedCount = async () => {
   const completedTasks = await Task.count({
-    where: { status: 'done' }
+    where: { status: 'completed' }
   });
 
   return { completedTasks };
