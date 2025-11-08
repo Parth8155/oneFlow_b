@@ -127,6 +127,27 @@ const getTasksCompletedCount = async (req, res) => {
 };
 
 /**
+ * Get financial summary data
+ */
+const getFinancialSummary = async (req, res) => {
+  try {
+    const financialSummary = await analyticsService.getFinancialSummary();
+
+    res.json({
+      success: true,
+      data: financialSummary
+    });
+  } catch (error) {
+    console.error('Error getting financial summary:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get financial summary',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Get comprehensive analytics data (all analytics in one response)
  */
 const getComprehensiveAnalytics = async (req, res) => {
@@ -154,5 +175,6 @@ module.exports = {
   getCostRevenueComparisonData,
   getBillableHoursData,
   getTasksCompletedCount,
+  getFinancialSummary,
   getComprehensiveAnalytics
 };

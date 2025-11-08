@@ -107,6 +107,16 @@ const getAllTasks = async (req, res) => {
           attributes: ['id', 'username', 'full_name', 'email']
         },
         {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'lastModifiedBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
           model: Project,
           as: 'project',
           attributes: ['id', 'name']
@@ -213,7 +223,10 @@ const createTask = async (req, res) => {
       description: description || null,
       assigned_to: assigned_to || null,
       priority: priority || 'medium',
-      due_date: due_date || null
+      due_date: due_date || null,
+      created_by: userId,
+      last_modified_by: userId,
+      last_modified_at: new Date()
     });
 
     // Fetch the created task with associations
@@ -222,6 +235,16 @@ const createTask = async (req, res) => {
         {
           model: User,
           as: 'assignedUser',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'lastModifiedBy',
           attributes: ['id', 'username', 'full_name', 'email']
         },
         {
@@ -420,7 +443,9 @@ const updateTask = async (req, res) => {
       assigned_to: assigned_to !== undefined ? assigned_to : task.assigned_to,
       status: status !== undefined ? status : task.status,
       priority: priority !== undefined ? priority : task.priority,
-      due_date: due_date !== undefined ? due_date : task.due_date
+      due_date: due_date !== undefined ? due_date : task.due_date,
+      last_modified_by: userId,
+      last_modified_at: new Date()
     });
 
     // Fetch updated task with associations
@@ -429,6 +454,16 @@ const updateTask = async (req, res) => {
         {
           model: User,
           as: 'assignedUser',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'lastModifiedBy',
           attributes: ['id', 'username', 'full_name', 'email']
         },
         {
@@ -449,6 +484,108 @@ const updateTask = async (req, res) => {
     res.status(500).json({
       error: 'Internal server error',
       message: 'Failed to update task'
+    });
+  }
+};
+
+const logWorkingHours = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { hours, description } = req.body;
+    const userId = req.user.id;
+
+    // Validate input
+    if (!hours || hours <= 0) {
+      return res.status(400).json({
+        error: 'Validation error',
+        message: 'Valid hours value is required'
+      });
+    }
+
+    const task = await Task.findByPk(id, {
+      include: [{
+        model: Project,
+        as: 'project',
+        attributes: ['id', 'project_manager_id']
+      }]
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Task not found'
+      });
+    }
+
+    // Check if user is assigned to the task or is the project manager
+    const canLogHours = task.assigned_to === userId || 
+                       task.project.project_manager_id === userId ||
+                       req.user.role === 'admin';
+
+    if (!canLogHours) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You can only log hours for tasks assigned to you'
+      });
+    }
+
+    // Update total hours worked
+    const newTotalHours = parseFloat(task.total_hours_worked || 0) + parseFloat(hours);
+    
+    await task.update({
+      total_hours_worked: newTotalHours,
+      last_modified_by: userId,
+      last_modified_at: new Date()
+    });
+
+    // Create timesheet entry
+    const { Timesheet } = require('../models');
+    await Timesheet.create({
+      task_id: id,
+      project_id: task.project_id,
+      user_id: userId,
+      hours: parseFloat(hours),
+      description: description || `Logged ${hours} hours on task`,
+      date: new Date().toISOString().split('T')[0]
+    });
+
+    // Fetch updated task with associations
+    const updatedTask = await Task.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'assignedUser',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: User,
+          as: 'lastModifiedBy',
+          attributes: ['id', 'username', 'full_name', 'email']
+        },
+        {
+          model: Project,
+          as: 'project',
+          attributes: ['id', 'name']
+        }
+      ]
+    });
+
+    res.json({
+      message: 'Hours logged successfully',
+      task: updatedTask,
+      hoursLogged: parseFloat(hours)
+    });
+
+  } catch (error) {
+    console.error('Log working hours error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to log working hours'
     });
   }
 };
@@ -754,6 +891,7 @@ module.exports = {
   createTask,
   getTaskById,
   updateTask,
+  logWorkingHours,
   deleteTask,
   addTaskComment,
   getTaskComments,

@@ -42,6 +42,35 @@ module.exports = (sequelize) => {
     due_date: {
       type: DataTypes.DATEONLY,
       allowNull: true
+    },
+    created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
+    },
+    last_modified_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
+    },
+    last_modified_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    total_hours_worked: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0.00,
+      allowNull: false
+    },
+    estimated_hours: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true
     }
   }, {
     tableName: 'tasks',

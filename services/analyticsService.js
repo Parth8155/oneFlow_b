@@ -197,6 +197,80 @@ const getTasksCompletedCount = async () => {
 };
 
 /**
+ * Get financial summary data
+ * Returns: Total revenue, expenses, profit, pending invoices, etc.
+ */
+const getFinancialSummary = async () => {
+  // Calculate total revenue from paid invoices
+  const totalRevenueResult = await CustomerInvoice.sum('amount', {
+    where: { status: 'paid' }
+  });
+  const totalRevenue = parseFloat(totalRevenueResult || 0);
+
+  // Calculate pending invoices (sent but not paid)
+  const pendingInvoicesResult = await CustomerInvoice.sum('amount', {
+    where: { status: { [Op.in]: ['sent', 'draft'] } }
+  });
+  const pendingInvoices = parseFloat(pendingInvoicesResult || 0);
+
+  // Calculate overdue invoices
+  const overdueInvoicesResult = await CustomerInvoice.sum('amount', {
+    where: { status: 'overdue' }
+  });
+  const overdueInvoices = parseFloat(overdueInvoicesResult || 0);
+
+  // Calculate total expenses
+  const totalExpensesResult = await Expense.sum('amount');
+  const totalExpenses = parseFloat(totalExpensesResult || 0);
+
+  // Calculate net profit
+  const netProfit = totalRevenue - totalExpenses;
+
+  // Calculate growth metrics (comparing to previous month)
+  const currentDate = new Date();
+  const lastMonth = new Date(currentDate);
+  lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+  const lastMonthRevenue = await CustomerInvoice.sum('amount', {
+    where: {
+      status: 'paid',
+      updated_at: {
+        [Op.gte]: lastMonth,
+        [Op.lt]: currentDate
+      }
+    }
+  });
+
+  const lastMonthExpenses = await Expense.sum('amount', {
+    where: {
+      created_at: {
+        [Op.gte]: lastMonth,
+        [Op.lt]: currentDate
+      }
+    }
+  });
+
+  const revenueGrowth = lastMonthRevenue > 0 ? 
+    ((totalRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
+  const expenseGrowth = lastMonthExpenses > 0 ? 
+    ((totalExpenses - lastMonthExpenses) / lastMonthExpenses) * 100 : 0;
+
+  // Calculate profit margin
+  const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+
+  return {
+    totalRevenue,
+    totalExpenses,
+    netProfit,
+    pendingInvoices,
+    overdueInvoices,
+    revenueGrowth: parseFloat(revenueGrowth.toFixed(2)),
+    expenseGrowth: parseFloat(expenseGrowth.toFixed(2)),
+    profitMargin: parseFloat(profitMargin.toFixed(2))
+  };
+};
+
+/**
  * Get comprehensive analytics data
  * Returns: All analytics data in one response
  */
@@ -234,5 +308,6 @@ module.exports = {
   getCostRevenueComparisonData,
   getBillableHoursData,
   getTasksCompletedCount,
+  getFinancialSummary,
   getComprehensiveAnalytics
 };

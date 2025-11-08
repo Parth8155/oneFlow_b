@@ -26,6 +26,8 @@ db.Expense = require('./expense')(sequelize, DataTypes);
 db.User.hasMany(db.Project, { foreignKey: 'project_manager_id', as: 'managedProjects' });
 db.User.hasMany(db.ProjectMember, { foreignKey: 'user_id', as: 'projectMemberships' });
 db.User.hasMany(db.Task, { foreignKey: 'assigned_to', as: 'assignedTasks' });
+db.User.hasMany(db.Task, { foreignKey: 'created_by', as: 'createdTasks' });
+db.User.hasMany(db.Task, { foreignKey: 'last_modified_by', as: 'modifiedTasks' });
 db.User.hasMany(db.TaskComment, { foreignKey: 'user_id', as: 'comments' });
 db.User.hasMany(db.TaskAttachment, { foreignKey: 'uploaded_by', as: 'attachments' });
 db.User.hasMany(db.Timesheet, { foreignKey: 'user_id', as: 'timesheets' });
@@ -54,6 +56,8 @@ db.ProjectMember.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
 // Task associations
 db.Task.belongsTo(db.Project, { foreignKey: 'project_id', as: 'project' });
 db.Task.belongsTo(db.User, { foreignKey: 'assigned_to', as: 'assignedUser' });
+db.Task.belongsTo(db.User, { foreignKey: 'created_by', as: 'createdBy' });
+db.Task.belongsTo(db.User, { foreignKey: 'last_modified_by', as: 'lastModifiedBy' });
 db.Task.hasMany(db.TaskComment, { foreignKey: 'task_id', as: 'comments' });
 db.Task.hasMany(db.TaskAttachment, { foreignKey: 'task_id', as: 'attachments' });
 db.Task.hasMany(db.Timesheet, { foreignKey: 'task_id', as: 'timesheets' });

@@ -49,6 +49,13 @@ router.get('/tasks/completed',
   analyticsController.getTasksCompletedCount
 );
 
+// Get financial summary data
+// Accessible by admin, project_manager, sales_finance
+router.get('/financial-summary',
+  authorize('admin', 'project_manager', 'sales_finance'),
+  analyticsController.getFinancialSummary
+);
+
 // Get comprehensive analytics data (all analytics in one response)
 // Accessible by admin, project_manager, sales_finance
 router.get('/comprehensive',

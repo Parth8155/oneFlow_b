@@ -51,6 +51,9 @@ router.get('/:id', taskController.getTaskById);
 // PUT /api/tasks/:id - Update task
 router.put('/:id', taskController.updateTask);
 
+// POST /api/tasks/:id/log-hours - Log working hours for task
+router.post('/:id/log-hours', taskController.logWorkingHours);
+
 // DELETE /api/tasks/:id - Delete task
 router.delete('/:id', authorize('admin', 'project_manager'), taskController.deleteTask);
 
