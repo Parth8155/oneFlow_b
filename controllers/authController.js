@@ -1,87 +1,6 @@
 const { User } = require('../models');
 const { generateToken, hashPassword, comparePassword } = require('../services/authService');
 
-const register = async (req, res) => {
-  try {
-    const { username, email, password, full_name, role, hourly_rate } = req.body;
-
-    // Validate required fields
-    if (!username || !email || !password || !role) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Username, email, password, and role are required'
-      });
-    }
-
-    // Validate role
-    const validRoles = ['project_manager', 'team_member', 'sales_finance', 'admin'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Invalid role. Must be one of: ' + validRoles.join(', ')
-      });
-    }
-
-    // Check if user already exists
-    const existingUser = await User.findOne({
-      where: {
-        [require('sequelize').Op.or]: [
-          { email: email },
-          { username: username }
-        ]
-      }
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        error: 'Conflict',
-        message: 'User with this email or username already exists'
-      });
-    }
-
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Create user
-    const user = await User.create({
-      username,
-      email,
-      password_hash: hashedPassword,
-      full_name: full_name || null,
-      role,
-      hourly_rate: hourly_rate || 0.00
-    });
-
-    // Generate JWT token
-    const token = generateToken(user);
-
-    // Return user data (excluding password) and token
-    const userResponse = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      full_name: user.full_name,
-      role: user.role,
-      hourly_rate: user.hourly_rate,
-      created_at: user.created_at,
-      updated_at: user.updated_at
-    };
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: userResponse,
-      token
-    });
-
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to register user'
-    });
-  }
-};
-
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -285,7 +204,6 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
-  register,
   login,
   getProfile,
   updateProfile,

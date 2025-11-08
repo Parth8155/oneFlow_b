@@ -3,6 +3,7 @@ const router = express.Router();
 const projectController = require('../controllers/projectController');
 const { authenticate } = require('../middleware/auth');
 const { authorize, requirePermission } = require('../middleware/authorization');
+const { uploadProjectImage } = require('../middleware/upload');
 
 // All project routes require authentication
 router.use(authenticate);
@@ -16,6 +17,7 @@ router.get('/',
 // POST /api/projects - Create a new project
 router.post('/',
   authorize('admin', 'project_manager'),
+  uploadProjectImage.single('image'),
   projectController.createProject
 );
 

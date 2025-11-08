@@ -34,6 +34,14 @@ module.exports = (sequelize) => {
     budget: {
       type: DataTypes.DECIMAL(15, 2),
       defaultValue: 0.00
+    },
+    priority: {
+      type: DataTypes.ENUM('high', 'medium', 'low'),
+      defaultValue: 'medium'
+    },
+    image: {
+      type: DataTypes.STRING(500),
+      allowNull: true
     }
   }, {
     tableName: 'projects',

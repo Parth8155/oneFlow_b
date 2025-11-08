@@ -1,6 +1,7 @@
 const { verifyToken } = require('../services/authService');
+const { User } = require('../models');
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
@@ -16,6 +17,15 @@ const authenticate = (req, res, next) => {
 
     // Verify token
     const decoded = verifyToken(token);
+
+    // Check if user is logged out
+    const user = await User.findByPk(decoded.id);
+    if (!user || user.logged_out) {
+      return res.status(401).json({
+        error: 'Access denied',
+        message: 'User is logged out'
+      });
+    }
 
     // Attach user info to request
     req.user = decoded;

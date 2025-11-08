@@ -35,6 +35,10 @@ module.exports = (sequelize) => {
     hourly_rate: {
       type: DataTypes.DECIMAL(10, 2),
       defaultValue: 0.00
+    },
+    logged_out: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     tableName: 'users',

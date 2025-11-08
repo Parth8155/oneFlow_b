@@ -101,8 +101,10 @@ const getAllProjects = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const { name, description, deadline, budget } = req.body;
+    const { name, description, deadline, budget, project_manager_id, priority } = req.body;
+    const image = req.file ? req.file.filename : null;
     const userId = req.user.id;
+    const userRole = req.user.role;
 
     // Validate required fields
     if (!name) {
@@ -120,14 +122,44 @@ const createProject = async (req, res) => {
       });
     }
 
+    // Validate priority if provided
+    if (priority && !['high', 'medium', 'low'].includes(priority)) {
+      return res.status(400).json({
+        error: 'Validation error',
+        message: 'Priority must be one of: high, medium, low'
+      });
+    }
+
+    // Validate project manager if provided
+    let managerId = userId; // Default to creator
+    if (project_manager_id) {
+      // Check if the specified manager exists and has appropriate role
+      const manager = await User.findByPk(project_manager_id);
+      if (!manager) {
+        return res.status(400).json({
+          error: 'Validation error',
+          message: 'Selected project manager does not exist'
+        });
+      }
+      if (!['admin', 'project_manager'].includes(manager.role)) {
+        return res.status(400).json({
+          error: 'Validation error',
+          message: 'Selected user cannot be assigned as project manager'
+        });
+      }
+      managerId = project_manager_id;
+    }
+
     // Create project
     const project = await Project.create({
       name,
       description: description || null,
       status: 'planned', // Default status
-      project_manager_id: userId, // Creator becomes project manager
+      project_manager_id: managerId,
       deadline: deadline || null,
-      budget: budget || 0.00
+      budget: budget || 0.00,
+      priority: priority || 'medium',
+      image: image || null
     });
 
     // Add creator as project member
@@ -135,6 +167,14 @@ const createProject = async (req, res) => {
       project_id: project.id,
       user_id: userId
     });
+
+    // If manager is different from creator, add manager as member too
+    if (managerId !== userId) {
+      await ProjectMember.create({
+        project_id: project.id,
+        user_id: managerId
+      });
+    }
 
     // Fetch the created project with associations
     const createdProject = await Project.findByPk(project.id, {
