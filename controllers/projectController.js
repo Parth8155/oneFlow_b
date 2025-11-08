@@ -619,6 +619,70 @@ const removeProjectMember = async (req, res) => {
   }
 };
 
+const getProjectTasks = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // Check if project exists
+    const project = await Project.findByPk(projectId);
+    if (!project) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Project not found'
+      });
+    }
+
+    // Check user access to project
+    if (userRole === 'team_member') {
+      const isMember = await ProjectMember.findOne({
+        where: { project_id: projectId, user_id: userId }
+      });
+      if (!isMember) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          message: 'You do not have access to this project'
+        });
+      }
+    } else if (userRole === 'project_manager') {
+      if (project.project_manager_id !== userId) {
+        const isMember = await ProjectMember.findOne({
+          where: { project_id: projectId, user_id: userId }
+        });
+        if (!isMember) {
+          return res.status(403).json({
+            error: 'Forbidden',
+            message: 'You do not have access to this project'
+          });
+        }
+      }
+    }
+
+    // Get tasks for the project
+    const tasks = await Task.findAll({
+      where: { project_id: projectId },
+      include: [
+        {
+          model: User,
+          as: 'assignedUser',
+          attributes: ['id', 'username', 'full_name', 'email'],
+          required: false
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json(tasks);
+  } catch (error) {
+    console.error('Get project tasks error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to get project tasks'
+    });
+  }
+};
+
 module.exports = {
   getAllProjects,
   createProject,
@@ -627,5 +691,6 @@ module.exports = {
   deleteProject,
   getProjectMembers,
   addProjectMember,
-  removeProjectMember
+  removeProjectMember,
+  getProjectTasks
 };

@@ -12,7 +12,7 @@ const getAllTasks = async (req, res) => {
 
     // Apply status filter if provided
     if (status) {
-      const validStatuses = ['new', 'in_progress', 'blocked', 'done'];
+      const validStatuses = ['to_do', 'in_progress', 'approval', 'completed'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           error: 'Validation error',
@@ -387,7 +387,7 @@ const updateTask = async (req, res) => {
 
     // Validate status if provided
     if (status) {
-      const validStatuses = ['new', 'in_progress', 'blocked', 'done'];
+      const validStatuses = ['to_do', 'in_progress', 'approval', 'completed'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           error: 'Validation error',

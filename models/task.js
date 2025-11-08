@@ -32,8 +32,8 @@ module.exports = (sequelize) => {
       }
     },
     status: {
-      type: DataTypes.ENUM('new', 'in_progress', 'blocked', 'done'),
-      defaultValue: 'new'
+      type: DataTypes.ENUM('to_do', 'in_progress', 'approval', 'completed'),
+      defaultValue: 'to_do'
     },
     priority: {
       type: DataTypes.ENUM('low', 'medium', 'high'),

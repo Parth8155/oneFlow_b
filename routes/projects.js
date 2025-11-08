@@ -39,6 +39,12 @@ router.delete('/:id',
   projectController.deleteProject
 );
 
+// GET /api/projects/:id/tasks - Get project tasks
+router.get('/:id/tasks',
+  authorize('admin', 'project_manager', 'sales_finance', 'team_member'),
+  projectController.getProjectTasks
+);
+
 // GET /api/projects/:id/members - Get project members
 router.get('/:id/members',
   authorize('admin', 'project_manager', 'sales_finance', 'team_member'),
