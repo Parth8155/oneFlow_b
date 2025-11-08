@@ -1,0 +1,313 @@
+# Implementation Plan
+
+- [x] 1. Set up project structure and database
+  - Initialize Node.js/Express backend with folder structure (routes, controllers, services, models, middleware)
+  - Set up PostgreSQL database connection using Sequelize ORM
+  - Create .env files for environment configuration (database credentials, JWT secret, port)
+  - Install required dependencies (express, sequelize, pg, bcrypt, jsonwebtoken, cors)
+  - _Requirements: 1.1, 13.1_
+
+- [x] 2. Implement database models and migrations
+  - Create Sequelize models for Users table with role enum and hourly_rate field
+  - Create Sequelize models for Projects table with status enum
+  - Create Sequelize models for ProjectMembers junction table
+  - Create Sequelize models for Tasks table with status and priority enums
+  - Create Sequelize models for TaskComments and TaskAttachments tables
+  - Create Sequelize models for Timesheets table with cost calculation
+  - Create Sequelize models for SalesOrders, PurchaseOrders, CustomerInvoices, VendorBills, and Expenses tables
+  - Define all model associations (belongsTo, hasMany, belongsToMany)
+  - Create database migrations for all tables
+  - Add database indexes on foreign keys and frequently queried columns (project_id, user_id, status)
+  - _Requirements: 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1_
+
+- [x] 3. Implement authentication system
+  - Create user registration endpoint with password hashing using bcrypt
+  - Create login endpoint that returns JWT token
+  - Implement JWT token generation and verification utilities
+  - Create authentication middleware to protect routes
+  - Create endpoint to get current user profile
+  - Create endpoint to update user profile
+  - Create endpoint to change password with current password verification
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 14.1, 14.2, 14.3, 14.4, 14.5_
+
+- [x] 4. Implement role-based authorization middleware
+  - Create authorization middleware to check user roles
+  - Define role permissions for each endpoint (Project Manager, Team Member, Sales/Finance, Admin)
+  - Implement permission checks for project creation, editing, and deletion
+  - Implement permission checks for expense approval
+  - Implement permission checks for financial document creation
+  - Return 403 Forbidden error for unauthorized actions
+  - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7_
+
+- [x] 5. Implement project management endpoints
+  - Create endpoint to list all projects with role-based filtering
+  - Create endpoint to create new project with validation
+  - Create endpoint to get project details by ID
+  - Create endpoint to update project details
+  - Create endpoint to delete project
+  - Create endpoint to get project team members
+  - Create endpoint to add team member to project
+  - Create endpoint to remove team member from project
+  - Implement project status filtering (Planned, In Progress, Completed, On Hold)
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 2.4_
+
+- [x] 6. Implement task management endpoints
+  - Create endpoint to list tasks with filters (my_tasks, project_id, status)
+  - Create endpoint to create new task with validation
+  - Create endpoint to get task details by ID
+  - Create endpoint to update task (status, priority, assigned user)
+  - Create endpoint to delete task
+  - Create endpoint to add comment to task
+  - Create endpoint to get task comments
+  - Create endpoint to upload task attachment
+  - Validate that assigned user is a project member
+  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
+
+- [x] 7. Implement timesheet management endpoints
+  - Create endpoint to list timesheets with filters (user_id, project_id, date range)
+  - Create endpoint to create timesheet entry
+  - Implement automatic cost calculation (hours * user.hourly_rate) when creating timesheet
+  - Create endpoint to get timesheet details by ID
+  - Create endpoint to update timesheet
+  - Create endpoint to delete timesheet
+  - Create endpoint to get timesheets for a specific task
+  - Validate that hours are positive and date is not in future
+  - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
+
+- [x] 8. Implement Sales Order management endpoints
+  - Create endpoint to list all sales orders with search and filter capabilities
+  - Create endpoint to create new sales order with auto-generated order number
+  - Create endpoint to get sales order details by ID
+  - Create endpoint to update sales order
+  - Create endpoint to delete sales order
+  - Create endpoint to link sales order to project
+  - Implement search by order number, customer name, amount, and status
+  - Implement filtering by date range, customer, status, and project
+  - Implement grouping by project, customer, or status
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 15.1, 15.2, 15.3, 15.4, 15.5_
+
+- [x] 9. Implement Purchase Order management endpoints
+  - Create endpoint to list all purchase orders with search and filter capabilities
+  - Create endpoint to create new purchase order with auto-generated order number
+  - Create endpoint to get purchase order details by ID
+  - Create endpoint to update purchase order
+  - Create endpoint to delete purchase order
+  - Create endpoint to link purchase order to project
+  - Implement search by order number, vendor name, amount, and status
+  - Implement filtering by date range, vendor, status, and project
+  - Implement grouping by project, vendor, or status
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 15.1, 15.2, 15.3, 15.4, 15.5_
+
+- [x] 10. Implement Customer Invoice management endpoints
+  - Create endpoint to list all customer invoices with search and filter capabilities
+  - Create endpoint to create new customer invoice with auto-generated invoice number
+  - Create endpoint to get customer invoice details by ID
+  - Create endpoint to update customer invoice
+  - Create endpoint to delete customer invoice
+  - Create endpoint to link customer invoice to project and optionally to sales order
+  - Implement search by invoice number, customer name, amount, and status
+  - Implement filtering by date range, customer, status, and project
+  - Implement grouping by project, customer, or status
+  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 15.1, 15.2, 15.3, 15.4, 15.5_
+
+- [x] 11. Implement Vendor Bill management endpoints
+  - Create endpoint to list all vendor bills with search and filter capabilities
+  - Create endpoint to create new vendor bill with auto-generated bill number
+  - Create endpoint to get vendor bill details by ID
+  - Create endpoint to update vendor bill
+  - Create endpoint to delete vendor bill
+  - Create endpoint to link vendor bill to project and optionally to purchase order
+  - Implement search by bill number, vendor name, amount, and status
+  - Implement filtering by date range, vendor, status, and project
+  - Implement grouping by project, vendor, or status
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 15.1, 15.2, 15.3, 15.4, 15.5_
+
+- [x] 12. Implement Expense management endpoints
+  - Create endpoint to list all expenses with search and filter capabilities
+  - Create endpoint to create new expense with auto-generated expense number
+  - Create endpoint to get expense details by ID
+  - Create endpoint to update expense
+  - Create endpoint to delete expense
+  - Create endpoint to link expense to project
+  - Create endpoint to approve expense (Project Manager only)
+  - Create endpoint to reject expense (Project Manager only)
+  - Implement file upload for receipt attachments
+  - Implement search by expense number, submitted by, amount, and status
+  - Implement filtering by date range, status, project, and billable flag
+  - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 15.1, 15.2, 15.3, 15.4_
+
+- [x] 13. Implement financial calculation service
+  - Create service function to calculate project revenue (sum of customer invoices)
+  - Create service function to calculate project cost (sum of vendor bills + expenses + timesheet costs)
+  - Create service function to calculate project profit (revenue - cost)
+  - Create service function to calculate budget usage percentage
+  - Create endpoint to get project financial analytics (revenue, cost, profit, budget usage)
+  - Create endpoint to get all financial documents linked to a project (for Links Panel)
+  - Ensure calculations exclude cancelled documents
+  - Ensure calculations update in real-time when financial documents change
+  - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 3.7_
+
+- [x] 14. Implement analytics endpoints
+  - Create endpoint to get dashboard KPIs (Active Projects, Delayed Tasks, Hours Logged, Revenue Earned)
+  - Create endpoint to get project progress data for all active projects
+  - Create endpoint to get resource utilization data by team member
+  - Create endpoint to get cost vs revenue comparison data
+  - Create endpoint to calculate billable vs non-billable hours
+  - Create endpoint to get tasks completed count
+  - _Requirements: 2.3, 2.5, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
+
+- [ ] 15. Implement frontend authentication components
+  - Create Login component with form validation
+  - Create Signup component with form validation
+  - Create AuthContext for managing authentication state
+  - Create ProtectedRoute component to guard authenticated routes
+  - Implement JWT token storage in localStorage
+  - Implement automatic token refresh or logout on expiration
+  - Create axios interceptor to attach JWT token to requests
+  - Redirect to role-appropriate dashboard after login
+  - _Requirements: 1.1, 1.2, 1.4_
+
+- [ ] 16. Implement frontend dashboard components
+  - Create Dashboard component displaying project cards
+  - Create ProjectCard component showing project name, status, progress bar, and budget usage
+  - Create KPIWidget component for displaying dashboard metrics
+  - Create ProjectFilters component for filtering by status (Planned, In Progress, Completed, On Hold)
+  - Fetch and display KPI data (Active Projects, Delayed Tasks, Hours Logged, Revenue Earned)
+  - Implement filter functionality to update project list
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+- [ ] 17. Implement frontend project management components
+  - Create ProjectList component with project cards
+  - Create ProjectForm component for creating/editing projects
+  - Create ProjectDetail component showing project information and team members
+  - Create LinksPanel component displaying linked financial documents (SO, PO, Invoices, Bills, Expenses)
+  - Create ProjectSettings component for creating/linking financial documents
+  - Implement add/remove team member functionality
+  - Implement project deletion with confirmation
+  - Display progress bar and budget usage on project detail page
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
+
+- [ ] 18. Implement frontend task management components
+  - Create TaskList component with filtering (My Tasks / All Tasks)
+  - Create TaskBoard component displaying tasks by status (New, In Progress, Blocked, Done)
+  - Create TaskForm component for creating/editing tasks
+  - Create TaskDetail component showing task information, comments, and attachments
+  - Create TimesheetForm component for logging hours
+  - Implement task status update functionality
+  - Implement add comment functionality
+  - Implement file upload for attachments
+  - Display timesheets within task detail view
+  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
+
+- [ ] 19. Implement frontend financial document components
+  - Create SalesOrderList component with search, filter, and group-by functionality
+  - Create SalesOrderForm component for creating/editing sales orders
+  - Create PurchaseOrderList component with search, filter, and group-by functionality
+  - Create PurchaseOrderForm component for creating/editing purchase orders
+  - Create CustomerInvoiceList component with search, filter, and group-by functionality
+  - Create CustomerInvoiceForm component for creating/editing customer invoices
+  - Create VendorBillList component with search, filter, and group-by functionality
+  - Create VendorBillForm component for creating/editing vendor bills
+  - Create ExpenseList component with search, filter, and group-by functionality
+  - Create ExpenseForm component for creating/editing expenses with receipt upload
+  - Implement link-to-project functionality for all document types
+  - Display document status and allow status updates
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 15.1, 15.2, 15.3, 15.4, 15.5, 15.6_
+
+- [ ] 20. Implement frontend analytics components
+  - Create AnalyticsDashboard component with KPI cards
+  - Create ProjectProgressChart component using Chart.js or Recharts
+  - Create ResourceUtilizationChart component showing team member utilization
+  - Create CostRevenueChart component comparing project costs and revenue
+  - Fetch and display analytics data from backend endpoints
+  - Display billable vs non-billable hours breakdown
+  - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
+
+- [ ] 21. Implement frontend navigation and layout
+  - Create Sidebar component with navigation links (Projects, Tasks, Analytics, Profile)
+  - Create Header component with user info and logout button
+  - Create Settings menu with links to global financial document lists
+  - Implement React Router for navigation between sections
+  - Highlight active navigation item in sidebar
+  - Ensure consistent layout across all pages
+  - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
+
+- [ ] 22. Implement frontend profile management
+  - Create Profile component for viewing/editing user information
+  - Create ChangePassword component with current password verification
+  - Implement form validation for profile updates
+  - Implement password strength validation
+  - Display success/error messages after updates
+  - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
+
+- [ ] 23. Implement error handling and validation
+  - Create centralized error handler middleware in backend
+  - Implement input validation for all API endpoints using express-validator or Joi
+  - Create frontend error notification system (toast notifications)
+  - Handle 401 errors by redirecting to login
+  - Handle 403 errors with appropriate error messages
+  - Validate form inputs on frontend before submission
+  - Display loading states during API calls
+  - _Requirements: All requirements (cross-cutting concern)_
+
+- [ ] 24. Implement file upload functionality
+  - Set up file storage directory for attachments and receipts
+  - Implement multer middleware for handling file uploads
+  - Create endpoint to upload task attachments
+  - Create endpoint to upload expense receipts
+  - Validate file types and sizes
+  - Return file path/URL after successful upload
+  - Implement file download functionality
+  - _Requirements: 4.5, 9.1_
+
+- [ ] 25. Implement search and filtering utilities
+  - Create reusable search utility function for backend
+  - Create reusable filter utility function for backend
+  - Create reusable group-by utility function for backend
+  - Create SearchBar component for frontend
+  - Create FilterPanel component for frontend
+  - Implement debounced search input to reduce API calls
+  - _Requirements: 15.2, 15.3, 15.4_
+
+- [ ] 26. Implement pagination for large lists
+  - Add pagination support to all list endpoints (projects, tasks, financial documents)
+  - Create Pagination component for frontend
+  - Implement page size configuration (default 20 items per page)
+  - Display total count and current page information
+  - _Requirements: All list-based requirements_
+
+- [ ] 27. Write backend unit tests
+  - Write tests for authentication service (signup, login, JWT generation)
+  - Write tests for financial calculation service (revenue, cost, profit calculations)
+  - Write tests for authorization middleware
+  - Write tests for validation utilities
+  - Mock database calls using jest.mock()
+  - _Requirements: All requirements (quality assurance)_
+
+- [ ] 28. Write backend integration tests
+  - Write tests for authentication flow (signup → login → protected routes)
+  - Write tests for project creation and team assignment
+  - Write tests for task creation and timesheet logging
+  - Write tests for financial document creation and linking
+  - Write tests for role-based access control
+  - Use test database for integration tests
+  - _Requirements: All requirements (quality assurance)_
+
+- [ ] 29. Write frontend component tests
+  - Write tests for Login and Signup components
+  - Write tests for Dashboard and ProjectCard components
+  - Write tests for TaskList and TaskForm components
+  - Write tests for financial document list and form components
+  - Mock API calls using MSW (Mock Service Worker)
+  - Test conditional rendering based on user role
+  - _Requirements: All requirements (quality assurance)_
+
+- [ ] 30. Set up deployment configuration
+  - Create production build script for React frontend
+  - Configure Express to serve React static files in production
+  - Set up environment-specific configuration files
+  - Create database migration script for production
+  - Configure CORS for production domain
+  - Set up HTTPS with SSL certificate
+  - Create deployment documentation
+  - _Requirements: All requirements (deployment)_
