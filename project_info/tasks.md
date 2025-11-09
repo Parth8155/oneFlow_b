@@ -147,15 +147,6 @@
   - Ensure calculations update in real-time when financial documents change
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 3.7_
 
-- [x] 14. Implement analytics endpoints
-  - Create endpoint to get dashboard KPIs (Active Projects, Delayed Tasks, Hours Logged, Revenue Earned)
-  - Create endpoint to get project progress data for all active projects
-  - Create endpoint to get resource utilization data by team member
-  - Create endpoint to get cost vs revenue comparison data
-  - Create endpoint to calculate billable vs non-billable hours
-  - Create endpoint to get tasks completed count
-  - _Requirements: 2.3, 2.5, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
-
 - [ ] 15. Implement frontend authentication components
   - Create Login component with form validation
   - Create Signup component with form validation
@@ -291,6 +282,15 @@
   - Write tests for financial document creation and linking
   - Write tests for role-based access control
   - Use test database for integration tests
+  - _Requirements: All requirements (quality assurance)_
+
+- [ ] 29. Write frontend component tests
+  - Write tests for Login and Signup components
+  - Write tests for Dashboard and ProjectCard components
+  - Write tests for TaskList and TaskForm components
+  - Write tests for financial document list and form components
+  - Mock API calls using MSW (Mock Service Worker)
+  - Test conditional rendering based on user role
   - _Requirements: All requirements (quality assurance)_
 
 - [ ] 29. Write frontend component tests

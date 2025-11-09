@@ -517,15 +517,41 @@ const logWorkingHours = async (req, res) => {
       });
     }
 
-    // Check if user is assigned to the task or is the project manager
-    const canLogHours = task.assigned_to === userId || 
-                       task.project.project_manager_id === userId ||
-                       req.user.role === 'admin';
+    // Check permissions for logging hours - allow all users with project access
+    let canLogHours = false;
+    
+    // Always allow admin
+    if (req.user.role === 'admin') {
+      canLogHours = true;
+    }
+    // Allow project manager (any project manager, not just this project's)
+    else if (req.user.role === 'project_manager') {
+      canLogHours = true;
+    }
+    // Allow this project's manager specifically
+    else if (task.project.project_manager_id === userId) {
+      canLogHours = true;
+    }
+    // Allow assigned user
+    else if (task.assigned_to === userId) {
+      canLogHours = true;
+    }
+    // Allow team members who are part of the project
+    else if (req.user.role === 'team_member') {
+      const isMember = await ProjectMember.findOne({
+        where: { project_id: task.project_id, user_id: userId }
+      });
+      canLogHours = !!isMember;
+    }
+    // Allow sales_finance users (they might need to track time for billing)
+    else if (req.user.role === 'sales_finance') {
+      canLogHours = true;
+    }
 
     if (!canLogHours) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'You can only log hours for tasks assigned to you'
+        message: 'You do not have permission to log hours for this task'
       });
     }
 
@@ -540,11 +566,21 @@ const logWorkingHours = async (req, res) => {
 
     // Create timesheet entry
     const { Timesheet } = require('../models');
+    
+    // Get user's hourly rate
+    const user = await User.findByPk(userId, {
+      attributes: ['hourly_rate']
+    });
+    
+    const hourlyRate = parseFloat(user?.hourly_rate || 50.00); // Default to $50 if not set
+    const cost = parseFloat(hours) * hourlyRate;
+    
     await Timesheet.create({
       task_id: id,
       project_id: task.project_id,
       user_id: userId,
       hours: parseFloat(hours),
+      cost: cost,
       description: description || `Logged ${hours} hours on task`,
       date: new Date().toISOString().split('T')[0]
     });
@@ -619,12 +655,17 @@ const deleteTask = async (req, res) => {
       });
     }
 
-    // Check if task has timesheets (optional business rule)
-    const timesheetCount = await require('../models').Timesheet.count({ where: { task_id: id } });
+    // Check if task has timesheets and provide detailed information
+    const { Timesheet } = require('../models');
+    const timesheetCount = await Timesheet.count({ where: { task_id: id } });
     if (timesheetCount > 0) {
       return res.status(409).json({
         error: 'Conflict',
-        message: 'Cannot delete task with existing timesheets'
+        message: `Cannot delete task with existing timesheets. Found ${timesheetCount} timesheet entries. Please delete all timesheet entries first, or contact an administrator.`,
+        details: {
+          timesheetCount,
+          suggestion: 'Delete all timesheet entries for this task before attempting to delete the task.'
+        }
       });
     }
 

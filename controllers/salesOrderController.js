@@ -3,6 +3,44 @@ const { Op } = require('sequelize');
 
 const getAllSalesOrders = async (req, res) => {
   try {
+    // Check for seed parameter to create test data
+    if (req.query.seed === 'true') {
+      console.log('Creating test sales orders...');
+      const testOrders = [
+        {
+          order_number: 'SO-001',
+          customer_name: 'ABC Corporation',
+          amount: 5000.00,
+          description: 'Software development services',
+          status: 'confirmed',
+          order_date: new Date().toISOString().split('T')[0],
+          created_by: req.user.id
+        },
+        {
+          order_number: 'SO-002',
+          customer_name: 'XYZ Industries',
+          amount: 7500.00,
+          description: 'Web application development',
+          status: 'draft',
+          order_date: new Date().toISOString().split('T')[0],
+          created_by: req.user.id
+        }
+      ];
+
+      for (const order of testOrders) {
+        try {
+          await SalesOrder.create(order);
+          console.log(`Created test sales order: ${order.order_number}`);
+        } catch (createError) {
+          console.log(`Sales order ${order.order_number} may already exist`);
+        }
+      }
+    }
+
+    // Simple query first to check if we have any data
+    const totalCount = await SalesOrder.count();
+    console.log('Total sales orders in database:', totalCount);
+
     const {
       search,
       project_id,

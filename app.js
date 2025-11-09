@@ -47,9 +47,6 @@ app.use('/api/expenses', expenseRoutes);
 const financialRoutes = require('./routes/financialRoutes');
 app.use('/api/financial', financialRoutes);
 
-const analyticsRoutes = require('./routes/analyticsRoutes');
-app.use('/api/analytics', analyticsRoutes);
-
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 

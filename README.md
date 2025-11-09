@@ -15,12 +15,6 @@ OneFlow is a comprehensive, modular project management platform that seamlessly 
   - Vendor Bills
   - Expenses with receipt uploads
 
-### Analytics & Reporting
-- **Real-time Financial Analytics**: Project revenue, costs, and profit calculations
-- **Dashboard KPIs**: Active projects, delayed tasks, hours logged, revenue earned
-- **Resource Utilization**: Team member workload and utilization tracking
-- **Project Progress**: Visual progress tracking across all active projects
-
 ### User Management
 - **Role-Based Access Control**: Four distinct user roles (Project Manager, Team Member, Sales/Finance User, Admin)
 - **Secure Authentication**: JWT-based authentication with password hashing
@@ -173,12 +167,6 @@ Before running this application, make sure you have the following installed:
 - `GET /api/expenses` - List expenses
 - `POST /api/expenses` - Create expense
 
-### Analytics
-- `GET /api/analytics/dashboard` - Get dashboard KPIs
-- `GET /api/analytics/projects` - Get project progress data
-- `GET /api/analytics/resources` - Get resource utilization
-- `GET /api/analytics/financials` - Get cost vs revenue data
-
 ## User Roles & Permissions
 
 ### 1. Project Manager
@@ -186,7 +174,6 @@ Before running this application, make sure you have the following installed:
 - Assign team members to projects
 - Approve expenses
 - View all project financial data
-- Access analytics dashboard
 
 ### 2. Team Member
 - View assigned tasks and projects
@@ -199,7 +186,6 @@ Before running this application, make sure you have the following installed:
 - Create and manage all financial documents (SO, PO, Invoices, Bills)
 - Link financial documents to projects
 - View global financial document lists
-- Access financial analytics
 
 ### 4. Admin
 - All permissions from other roles
@@ -221,7 +207,6 @@ Backend/
 │   ├── taskController.js
 │   ├── timesheetController.js
 │   ├── financialController.js
-│   ├── analyticsController.js
 │   └── ...
 ├── models/               # Sequelize models
 │   ├── index.js
@@ -244,8 +229,7 @@ Backend/
 │   ├── customerInvoiceRoutes.js
 │   ├── vendorBillRoutes.js
 │   ├── expenseRoutes.js
-│   ├── financialRoutes.js
-│   └── analyticsRoutes.js
+│   └── financialRoutes.js
 ├── middleware/           # Custom middleware
 │   ├── auth.js           # JWT authentication
 │   ├── authorization.js  # Role-based access control
@@ -253,7 +237,6 @@ Backend/
 ├── services/             # Business logic services
 │   ├── authService.js
 │   ├── financialService.js
-│   └── analyticsService.js
 ├── migrations/           # Database migrations
 ├── seeders/              # Database seeders
 ├── uploads/              # File upload directory

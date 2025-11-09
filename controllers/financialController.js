@@ -1,37 +1,6 @@
 const financialService = require('../services/financialService');
 
 /**
- * Get financial analytics for a project
- */
-const getProjectFinancialAnalytics = async (req, res) => {
-  try {
-    const { projectId } = req.params;
-
-    // Validate project ID
-    if (!projectId || isNaN(projectId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Valid project ID is required'
-      });
-    }
-
-    const analytics = await financialService.getProjectFinancialAnalytics(projectId);
-
-    res.json({
-      success: true,
-      data: analytics
-    });
-  } catch (error) {
-    console.error('Error getting project financial analytics:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get project financial analytics',
-      error: error.message
-    });
-  }
-};
-
-/**
  * Get all financial documents linked to a project
  */
 const getProjectFinancialDocuments = async (req, res) => {
@@ -182,11 +151,65 @@ const getBudgetUsagePercentage = async (req, res) => {
   }
 };
 
+/**
+ * Get detailed budget breakdown for a project
+ */
+const getProjectBudgetBreakdown = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    if (!projectId || isNaN(projectId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid project ID is required'
+      });
+    }
+
+    const budgetBreakdown = await financialService.getProjectBudgetBreakdown(projectId);
+
+    res.json({
+      success: true,
+      data: budgetBreakdown
+    });
+  } catch (error) {
+    console.error('Error getting project budget breakdown:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get project budget breakdown',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get budget summary for all projects
+ */
+const getAllProjectsBudgetSummary = async (req, res) => {
+  try {
+    console.log('getAllProjectsBudgetSummary endpoint called');
+    const budgetSummary = await financialService.getAllProjectsBudgetSummary();
+    console.log('Budget summary result:', budgetSummary);
+
+    res.json({
+      success: true,
+      data: budgetSummary
+    });
+  } catch (error) {
+    console.error('Error getting projects budget summary:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get projects budget summary',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  getProjectFinancialAnalytics,
   getProjectFinancialDocuments,
   getProjectRevenue,
   getProjectCost,
   getProjectProfit,
-  getBudgetUsagePercentage
+  getBudgetUsagePercentage,
+  getProjectBudgetBreakdown,
+  getAllProjectsBudgetSummary
 };

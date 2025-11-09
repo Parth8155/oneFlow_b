@@ -668,6 +668,28 @@ const getProjectTasks = async (req, res) => {
           as: 'assignedUser',
           attributes: ['id', 'username', 'full_name', 'email'],
           required: false
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'username', 'full_name', 'email'],
+          required: false
+        },
+        {
+          model: User,
+          as: 'lastModifiedBy',
+          attributes: ['id', 'username', 'full_name', 'email'],
+          required: false
+        },
+        {
+          model: Timesheet,
+          as: 'timesheets',
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'full_name', 'email']
+          }],
+          required: false
         }
       ],
       order: [['created_at', 'DESC']]

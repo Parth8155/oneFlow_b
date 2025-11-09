@@ -58,10 +58,7 @@ const PERMISSIONS = {
   UPDATE_EXPENSE: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_MEMBER],
   DELETE_EXPENSE: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
   APPROVE_EXPENSE: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
-  VIEW_EXPENSES: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.SALES_FINANCE, ROLES.TEAM_MEMBER],
-
-  // Analytics and reporting
-  VIEW_ANALYTICS: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.SALES_FINANCE]
+  VIEW_EXPENSES: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.SALES_FINANCE, ROLES.TEAM_MEMBER]
 };
 
 // Check if user has required role(s)
@@ -201,11 +198,6 @@ const canManageTimesheets = (req, res, next) => {
   return requirePermission('CREATE_TIMESHEET')(req, res, next);
 };
 
-// Check if user can view analytics
-const canViewAnalytics = (req, res, next) => {
-  return requirePermission('VIEW_ANALYTICS')(req, res, next);
-};
-
 // Middleware to check if user is a member of a specific project
 const isProjectMember = async (req, res, next) => {
   try {
@@ -283,7 +275,6 @@ module.exports = {
   canCreateFinancialDocuments,
   canManageTasks,
   canManageTimesheets,
-  canViewAnalytics,
   isProjectMember,
   isOwnerOrAdmin
 };

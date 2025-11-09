@@ -7,13 +7,6 @@ const { authorize } = require('../middleware/authorization');
 // All financial routes require authentication
 router.use(authenticate);
 
-// Get comprehensive financial analytics for a project
-// Accessible by admin, project_manager, sales_finance
-router.get('/projects/:projectId/analytics',
-  authorize('admin', 'project_manager', 'sales_finance'),
-  financialController.getProjectFinancialAnalytics
-);
-
 // Get all financial documents linked to a project
 // Accessible by admin, project_manager, sales_finance
 router.get('/projects/:projectId/documents',
@@ -47,6 +40,20 @@ router.get('/projects/:projectId/profit',
 router.get('/projects/:projectId/budget-usage',
   authorize('admin', 'project_manager', 'sales_finance'),
   financialController.getBudgetUsagePercentage
+);
+
+// Get detailed budget breakdown for a project
+// Accessible by admin, project_manager, sales_finance
+router.get('/projects/:projectId/budget-breakdown',
+  authorize('admin', 'project_manager', 'sales_finance'),
+  financialController.getProjectBudgetBreakdown
+);
+
+// Get budget summary for all projects
+// Accessible by admin, project_manager, sales_finance
+router.get('/budget-summary',
+  authorize('admin', 'project_manager', 'sales_finance'),
+  financialController.getAllProjectsBudgetSummary
 );
 
 module.exports = router;
